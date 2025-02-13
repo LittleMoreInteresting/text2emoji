@@ -1,3 +1,3 @@
-module text2emoji
+module github.com/LittleMoreInteresting/text2emoji
 
-go 1.23
+go 1.22
