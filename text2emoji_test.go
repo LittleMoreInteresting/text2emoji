@@ -6,7 +6,7 @@ import (
 )
 
 func TestEncrypt(t *testing.T) {
-	s1 := "hello world"
+	s1 := "hello world ABC 123 你好"
 	es1 := Encrypt(s1)
 	fmt.Println(es1)
 	s2 := Decrypt(es1)

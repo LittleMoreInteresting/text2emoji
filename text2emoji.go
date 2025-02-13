@@ -2,165 +2,35 @@ package text2emoji
 
 import (
 	"encoding/base64"
-	"fmt"
+	"math/rand"
 	"strings"
-)
-
-var (
-	char2emoji = map[string]string{
-		"A": "😀",
-		"B": "😃",
-		"C": "😄",
-		"D": "😁",
-		"E": "😆",
-		"F": "😅",
-		"G": "😂",
-		"H": "🤣",
-		"I": "😊",
-		"J": "😇",
-		"K": "🐶",
-		"L": "🐱",
-		"M": "🐭",
-		"N": "🐹",
-		"O": "🐰",
-		"P": "🦊",
-		"Q": "🐻",
-		"R": "🐼",
-		"S": "🐨",
-		"T": "🐯",
-		"U": "🍎",
-		"V": "🍐",
-		"W": "🍊",
-		"X": "🍋",
-		"Y": "🍌",
-		"Z": "🍉",
-		"a": "🍇",
-		"b": "🍓",
-		"c": "🍈",
-		"d": "🍒",
-		"e": "⚽",
-		"f": "🏀",
-		"g": "🏈",
-		"h": "⚾",
-		"i": "🎾",
-		"j": "🏐",
-		"k": "🏉",
-		"l": "🎱",
-		"m": "🏓",
-		"n": "🏸",
-		"o": "🚗",
-		"p": "🚕",
-		"q": "🚙",
-		"r": "🚌",
-		"s": "🚎",
-		"t": "🏎",
-		"u": "🚓",
-		"v": "🚑",
-		"w": "🚒",
-		"x": "🚐",
-		"y": "⌚",
-		"z": "📱",
-		"0": "📲",
-		"1": "💻",
-		"2": "⭐",
-		"3": "🐈",
-		"4": "🐕",
-		"5": "🐖",
-		"6": "🐪",
-		"7": "💾",
-		"8": "💰",
-		"9": "💴",
-		"+": "💵",
-		"/": "💶",
-		"=": "💷",
-	}
-	emoji2char = map[string]string{
-		"😀": "A",
-		"😃": "B",
-		"😄": "C",
-		"😁": "D",
-		"😆": "E",
-		"😅": "F",
-		"😂": "G",
-		"🤣": "H",
-		"😊": "I",
-		"😇": "J",
-		"🐶": "K",
-		"🐱": "L",
-		"🐭": "M",
-		"🐹": "N",
-		"🐰": "O",
-		"🦊": "P",
-		"🐻": "Q",
-		"🐼": "R",
-		"🐨": "S",
-		"🐯": "T",
-		"🍎": "U",
-		"🍐": "V",
-		"🍊": "W",
-		"🍋": "X",
-		"🍌": "Y",
-		"🍉": "Z",
-		"🍇": "a",
-		"🍓": "b",
-		"🍈": "c",
-		"🍒": "d",
-		"⚽": "e",
-		"🏀": "f",
-		"🏈": "g",
-		"⚾": "h",
-		"🎾": "i",
-		"🏐": "j",
-		"🏉": "k",
-		"🎱": "l",
-		"🏓": "m",
-		"🏸": "n",
-		"🚗": "o",
-		"🚕": "p",
-		"🚙": "q",
-		"🚌": "r",
-		"🚎": "s",
-		"🏎": "t",
-		"🚓": "u",
-		"🚑": "v",
-		"🚒": "w",
-		"🚐": "x",
-		"⌚": "y",
-		"📱": "z",
-		"📲": "0",
-		"💻": "1",
-		"⭐": "2",
-		"🐈": "3",
-		"🐕": "4",
-		"🐖": "5",
-		"🐪": "6",
-		"💾": "7",
-		"💰": "8",
-		"💴": "9",
-		"💵": "+",
-		"💶": "/",
-		"💷": "=",
-	}
 )
 
 func Encrypt(text string) string {
 	base64Str := base64.StdEncoding.EncodeToString([]byte(text))
-	fmt.Println(base64Str)
+	emojiLen := len(emojis)
+	randomInt := rand.Intn(10)
 	var encrypted strings.Builder
+	encrypted.WriteString(emojis[randomInt])
 	for _, char := range base64Str {
-		encrypted.WriteString(char2emoji[string(char)])
+		idx := (randomInt + base64CharIdx[string(char)]) % emojiLen
+		encrypted.WriteString(emojis[idx])
 	}
 	return encrypted.String()
 }
 
 func Decrypt(emojiStr string) string {
 	var base64Str strings.Builder
-	for _, emoji := range emojiStr {
-		char, ok := emoji2char[fmt.Sprintf("%c", emoji)]
-		if !ok {
-			return ""
+	emojiLen := len(emojis)
+	var step int
+	for i, emoji := range emojiStr {
+		if i == 0 {
+			step = emojiIdx[string(emoji)]
+			continue
 		}
-		base64Str.WriteString(char)
+		ei := emojiIdx[string(emoji)]
+		char := base64Char[((ei-step)%emojiLen+emojiLen)%emojiLen]
+		base64Str.WriteString(string(char))
 	}
 	decoded, _ := base64.StdEncoding.DecodeString(base64Str.String())
 	return string(decoded)
